@@ -1,14 +1,14 @@
 import os
 import cv2
 import numpy as np
-from sklearn.naive_bayes import GaussianNB
+import joblib
+from sklearn.naive_bayes import GaussianNB  # Mengganti SVM dengan Naive Bayes
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.metrics import accuracy_score, confusion_matrix, classification_report
-from sklearn.preprocessing import LabelEncoder, StandardScaler, MinMaxScaler
-import joblib  # Untuk menyimpan model
+from sklearn.preprocessing import LabelEncoder, MinMaxScaler
 
 # Fungsi untuk ekstraksi fitur dari gambar (Menggunakan ukuran lebih besar)
-def extract_features(image_path, size=(256, 256)):  # Ukuran gambar yang lebih besar
+def extract_features(image_path, size=(128, 128)):  # Ukuran gambar yang lebih besar
     """Mengambil fitur HSV dari gambar, termasuk resizing gambar"""
     image = cv2.imread(image_path)
     
@@ -37,53 +37,50 @@ def extract_features(image_path, size=(256, 256)):  # Ukuran gambar yang lebih b
     features = np.concatenate((hist_hue, hist_saturation, hist_value))
     return features
 
-# Fungsi untuk melatih model dengan GridSearchCV untuk optimasi
-def train_model(dataset_dir):
+# Fungsi untuk membaca dataset dari folder dan mengekstrak fitur
+def extract_features_from_folder(folder_path):
     features = []
     labels = []
     
-    # Menelusuri folder "busuk" dan "sehat"
-    for label in ['sehat', 'busuk']:
-        folder_path = os.path.join(dataset_dir, label)
-        
-        # Memeriksa apakah folder ada
-        if not os.path.exists(folder_path):
-            print(f"[ERROR] Folder untuk label '{label}' tidak ditemukan.")
-            continue
-        
-        print(f"Menelusuri folder {folder_path} untuk label {label}...")
-        
-        for filename in os.listdir(folder_path):
-            if filename.endswith('.jpg'):
-                file_path = os.path.join(folder_path, filename)
-                hist = extract_features(file_path)
-                if hist is not None:  # Hanya tambahkan gambar yang valid
-                    features.append(hist)
-                    labels.append(label)
-    
-    # Mengonversi daftar fitur dan label menjadi array numpy
+    # Looping untuk setiap subfolder dalam dataset
+    for subfolder in os.listdir(folder_path):
+        subfolder_path = os.path.join(folder_path, subfolder)
+        if os.path.isdir(subfolder_path):  # Mengecek apakah ini adalah folder
+            label = 'sehat' if subfolder == "sehat" else 'busuk'  # Label sehat = "sehat", busuk = "busuk"
+            for filename in os.listdir(subfolder_path):
+                if filename.endswith(".jpg") or filename.endswith(".png"):
+                    image_path = os.path.join(subfolder_path, filename)
+                    feature = extract_features(image_path)
+                    if feature is not None:
+                        features.append(feature)
+                        labels.append(label)
+
+    return np.array(features), np.array(labels)
+
+# Fungsi untuk melatih model Naive Bayes dengan GridSearchCV untuk optimasi
+def train_model(dataset_dir):
+    # Ekstraksi fitur dari folder
+    features, labels = extract_features_from_folder(dataset_dir)
+
     if len(features) == 0:
         print("[ERROR] Tidak ada data fitur yang valid, pelatihan gagal.")
         return
-    
-    features = np.array(features)
-    labels = np.array(labels)
 
-    # Mengonversi label menjadi angka
+    # Mengonversi label menjadi angka (sehat = 1, busuk = 0)
     label_encoder = LabelEncoder()
-    labels = label_encoder.fit_transform(labels)
+    labels_encoded = label_encoder.fit_transform(labels)
 
-    # Normalisasi fitur dengan MinMaxScaler (coba scaler lain)
+    # Normalisasi fitur dengan MinMaxScaler
     scaler = MinMaxScaler()
-    features = scaler.fit_transform(features)
+    features_scaled = scaler.fit_transform(features)
 
     # Membagi dataset menjadi data latih dan data uji
-    X_train, X_test, y_train, y_test = train_test_split(features, labels, test_size=0.3, random_state=42)
+    X_train, X_test, y_train, y_test = train_test_split(features_scaled, labels_encoded, test_size=0.3, random_state=42)
 
-    # Melatih model Naive Bayes dengan GridSearchCV untuk tuning parameter
+    # Model Naive Bayes (GaussianNB)
     model = GaussianNB()
     
-    # Tuning Naive Bayes menggunakan GridSearchCV
+    # Tuning Naive Bayes menggunakan GridSearchCV (meskipun GaussianNB tidak banyak memiliki parameter yang dapat disetel)
     params = {'var_smoothing': [1e-9, 1e-8, 1e-7, 1e-6, 1e-5]}  # Uji smoothing yang berbeda
     grid_search = GridSearchCV(model, params, cv=5)
     grid_search.fit(X_train, y_train)
@@ -121,7 +118,7 @@ def train_model(dataset_dir):
     print(f'Scaler berhasil disimpan ke dalam file: {scaler_filename}')
 
 # Menentukan folder dataset
-dataset_dir = 'dataset_train'
+dataset_dir = 'dataset_train'  # Ganti dengan folder dataset Anda
 
 # Melatih model
-train_model(dataset_dir) 
+train_model(dataset_dir)
