@@ -57,7 +57,7 @@ def pil_to_opencv_image(pil_image):
     except Exception as e:
         raise ValueError(f"Error converting PIL image to OpenCV: {str(e)}")
 
-# Function to detect disease (healthy or rotten) from the image
+# Function to detect disease (healthy or rotten) from the model
 def detect_disease(image):
     """Detect disease in the image."""
     try:
@@ -114,7 +114,6 @@ def predict():
             'prediction': result,
             'rekomendasi': recommendations.get(result, {})
         })
-    
     except Exception as e:
         app.logger.error(f"Error processing image: {e}")
         return jsonify({'error': str(e)}), 500

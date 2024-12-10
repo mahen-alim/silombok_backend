@@ -4,3 +4,4 @@ dataset_train/
 label_encoder.pkl
 modeL_naive_bayes_cabai.pkl
 scaler.pkl
+rgb_extracted_hsv_with_filenames.xlsx
