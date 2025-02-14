@@ -116,7 +116,7 @@ def train_model(dataset_dir):
     scaler_filename = 'scaler.pkl'
     joblib.dump(scaler, scaler_filename)
     print(f'Scaler berhasil disimpan ke dalam file: {scaler_filename}')
-
+ 
 # Menentukan folder dataset
 dataset_dir = 'dataset_train'  # Ganti dengan folder dataset Anda
 
