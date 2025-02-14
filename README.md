@@ -43,17 +43,22 @@ Server ini digunakan sebagai penghubung antara hasil model latih yang sudah dila
     pip install -r requirements.txt
     ```
 
-5. Jalankan server flask :
+5. Latih model, dengan mengetikkan perintah berikut :
+   ```bash
+   python.training2.py
+   ```
+
+6. Jalankan file yang berisi api flask, dengan mengetikkan perintah berikut :
    ```bash
    python detect.py
    ```
 
-6. Jika ingin menonaktifkan virtual environment, Anda bisa mengetikkan ini pada terminal:
+7. Jika ingin menonaktifkan virtual environment, Anda bisa mengetikkan ini pada terminal :
    ```bash
    deactivate
    ```
 
-7. Akses dan panduan penggunaan website SiLombok dapat diakses pada link berikut :
+8. Akses dan panduan penggunaan website SiLombok dapat diakses pada link berikut :
    https://github.com/mahen-alim/silombok
 
 ## Teknologi yang Digunakan
