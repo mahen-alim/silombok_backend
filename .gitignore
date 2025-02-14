@@ -1,6 +1,5 @@
 # Ignore the .env file
 env/
-dataset_train/
 label_encoder.pkl
 modeL_naive_bayes_cabai.pkl
 scaler.pkl
