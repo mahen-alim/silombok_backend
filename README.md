@@ -42,10 +42,10 @@ Server ini digunakan sebagai penghubung antara hasil model latih yang sudah dila
     ```bash
     pip install -r requirements.txt
     ```
-
+    
 5. Latih model, dengan mengetikkan perintah berikut :
    ```bash
-   python.training2.py
+   python training2.py
    ```
 
 6. Jalankan file yang berisi api flask, dengan mengetikkan perintah berikut :
